@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="mr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MPSC Daily Current Affairs & GK</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--ink:#172033;--muted:#667085;--accent:#7c3aed;--line:#e5e7eb;--good:#15803d}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Noto Sans Devanagari",sans-serif;background:var(--bg);color:var(--ink)}
+header{background:linear-gradient(135deg,#4c1d95,#7c3aed);color:white;padding:28px 18px}
+.wrap{max-width:1100px;margin:auto}.top{display:flex;justify-content:space-between;gap:16px;align-items:center}.badge{background:#ffffff22;padding:7px 11px;border-radius:999px;font-size:13px}
+h1{margin:0 0 8px;font-size:28px}.sub{opacity:.9}
+nav{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:3}
+.nav{display:flex;gap:8px;overflow:auto;padding:10px 0}.nav button{border:0;background:#f2f4f7;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:600}
+.nav button.active{background:#ede9fe;color:#5b21b6}
+main{padding:22px 0}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 2px 8px #1018280a}
+.stat{font-size:27px;font-weight:800}.muted{color:var(--muted);font-size:14px}
+.controls{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}.controls input,.controls select{padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.btn{border:0;background:var(--accent);color:#fff;padding:11px 15px;border-radius:10px;font-weight:700;cursor:pointer}
+.btn.secondary{background:#eef2ff;color:#4338ca}.btn.green{background:#15803d}
+.section{display:none}.section.active{display:block}
+.news{display:grid;grid-template-columns:1fr 1fr;gap:14px}.news article{border:1px solid var(--line);border-radius:14px;padding:15px;background:#fff}
+.news h3{font-size:17px;margin:0 0 8px}.tag{display:inline-block;font-size:12px;background:#f3e8ff;color:#6b21a8;padding:4px 8px;border-radius:999px;margin-bottom:8px}
+.q{border:1px solid var(--line);background:#fff;border-radius:15px;padding:18px;margin-bottom:13px}.q h3{margin-top:0}.opt{display:block;padding:10px;border:1px solid var(--line);border-radius:9px;margin:7px 0;cursor:pointer}.opt:hover{background:#f9fafb}.opt.correct{border-color:#86efac;background:#f0fdf4}.opt.wrong{border-color:#fca5a5;background:#fef2f2}
+#score{font-weight:800}.empty{text-align:center;padding:40px;color:var(--muted)}
+footer{padding:30px 0;color:var(--muted);font-size:13px}
+@media(max-width:800px){.grid{grid-template-columns:1fr 1fr}.news{grid-template-columns:1fr}}@media(max-width:500px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div class="wrap top"><div><h1>📚 MPSC Daily Update</h1><div class="sub">Current Affairs + General Knowledge + Daily 50 MCQs</div></div><span class="badge" id="updated">Last updated: —</span></div></header>
+<nav><div class="wrap nav">
+<button class="active" data-tab="dashboard">Dashboard</button>
+<button data-tab="daily">आजचे 50 प्रश्न</button>
+<button data-tab="news">Current Affairs</button>
+<button data-tab="pyq">PYQ Bank</button>
+<button data-tab="gk">GK</button>
+</div></nav>
+<main class="wrap">
+<section id="dashboard" class="section active">
+<div class="grid">
+<div class="card"><div class="muted">PYQ Target</div><div class="stat" id="pyqCount">0 / 2500</div></div>
+<div class="card"><div class="muted">आजचे प्रश्न</div><div class="stat" id="dailyCount">0 / 50</div></div>
+<div class="card"><div class="muted">आजचा Score</div><div class="stat" id="dashScore">0%</div></div>
+<div class="card"><div class="muted">Bank Status</div><div class="stat" id="bankStatus">Loading</div></div>
+</div>
+<div class="card" style="margin-top:16px"><h2>आज काय अभ्यासायचे?</h2>
+<ul><li>Current Affairs मधील महत्त्वाच्या बातम्या वाचा.</li><li>50 MCQs सोडवा आणि चुकीचे प्रश्न पुन्हा पाहा.</li><li>PYQ Bank मध्ये वर्ष/विषयानुसार सराव करा.</li></ul>
+<button class="btn" onclick="showTab('daily')">आजची टेस्ट सुरू करा</button>
+</div>
+</section>
+
+<section id="daily" class="section">
+<div class="card"><h2>📝 आजची 50 प्रश्नांची टेस्ट</h2><p class="muted">प्रत्येक प्रश्नाला एक पर्याय निवडा. शेवटी Submit करा.</p>
+<div id="quiz"></div><button class="btn green" onclick="submitQuiz()">Submit Test</button> <span id="score"></span></div>
+</section>
+
+<section id="news" class="section">
+<div class="card"><h2>📰 Daily Current Affairs</h2><p class="muted">ही यादी daily_update.json मधून येते. GitHub Action/Server ने ती रोज अपडेट करता येते.</p><div id="newsList" class="news"></div></div>
+</section>
+
+<section id="pyq" class="section">
+<div class="card"><h2>📖 Previous Year Question Bank</h2>
+<div class="controls"><input id="search" placeholder="प्रश्न शोधा..." oninput="renderPYQ()">
+<select id="year" onchange="renderPYQ()"><option value="">सर्व वर्षे</option></select>
+<select id="subject" onchange="renderPYQ()"><option value="">सर्व विषय</option></select></div>
+<p class="muted">लक्ष्य: 2500 सत्यापित PYQs. सध्या demo records आहेत; वास्तविक प्रश्नांचे स्रोत/तुमचे PDFs import केल्यावर bank भरता येईल.</p>
+<div id="pyqList"></div></div>
+</section>
+
+<section id="gk" class="section">
+<div class="card"><h2>🧠 Static GK</h2><div id="gkList"></div></div>
+</section>
+<footer>टीप: Current Affairs स्वयंचलित करण्यासाठी website host + scheduled updater आवश्यक आहे. फक्त local HTML file उघडल्यावर ती स्वतःहून रोज background मध्ये update होत नाही.</footer>
+</main>
+<script>
+let DATA={daily:[],news:[],pyq:[],gk:[]}, score=0;
+async function load(){
+  try{
+    const r=await fetch('daily_update.json?ts='+Date.now()); DATA=await r.json();
+  }catch(e){
+    DATA={daily:demoDaily,news:demoNews,pyq:demoPYQ,gk:demoGK,updated_at:'Demo mode'};
+  }
+  document.getElementById('updated').textContent='Last updated: '+(DATA.updated_at||'—');
+  document.getElementById('pyqCount').textContent=(DATA.pyq||[]).length+' / 2500';
+  document.getElementById('dailyCount').textContent=(DATA.daily||[]).length+' / 50';
+  document.getElementById('bankStatus').textContent=(DATA.pyq||[]).length>=2500?'Ready':'Building';
+  renderQuiz(); renderNews(); renderPYQ(); renderGK(); fillFilters();
+}
+function showTab(id){document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));}
+document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+function renderQuiz(){let el=document.getElementById('quiz');el.innerHTML=(DATA.daily||[]).map((q,i)=>`<div class="q"><h3>Q${i+1}. ${q.q}</h3>${q.options.map((o,j)=>`<label class="opt"><input type="radio" name="q${i}" value="${j}"> ${String.fromCharCode(65+j)}) ${o}</label>`).join('')}<div id="exp${i}" class="muted"></div></div>`).join('')}
+function submitQuiz(){score=0;(DATA.daily||[]).forEach((q,i)=>{let a=document.querySelector(`input[name=q${i}]:checked`);document.querySelectorAll(`input[name=q${i}]`).forEach((x,j)=>{x.parentElement.classList.remove('correct','wrong');if(j===q.answer)x.parentElement.classList.add('correct')});if(a&&+a.value===q.answer)score++;let ex=document.getElementById('exp'+i);ex.textContent=q.explanation||''});let pct=DATA.daily.length?Math.round(score/DATA.daily.length*100):0;document.getElementById('score').textContent=` Score: ${score}/${DATA.daily.length} (${pct}%)`;document.getElementById('dashScore').textContent=pct+'%';localStorage.setItem('mpsc_score',pct)}
+function renderNews(){document.getElementById('newsList').innerHTML=(DATA.news||[]).map(n=>`<article><span class="tag">${n.category||'Current Affairs'}</span><h3>${n.title}</h3><p>${n.summary||''}</p>${n.url?`<a href="${n.url}" target="_blank" rel="noopener">Source ↗</a>`:''}</article>`).join('')||'<div class="empty">आजची बातमी उपलब्ध नाही.</div>'}
+function fillFilters(){let ys=[...new Set(DATA.pyq.map(x=>x.year).filter(Boolean))].sort((a,b)=>b-a), ss=[...new Set(DATA.pyq.map(x=>x.subject).filter(Boolean))];document.getElementById('year').innerHTML='<option value="">सर्व वर्षे</option>'+ys.map(y=>`<option>${y}</option>`).join('');document.getElementById('subject').innerHTML='<option value="">सर्व विषय</option>'+ss.map(s=>`<option>${s}</option>`).join('')}
+function renderPYQ(){let s=(document.getElementById('search')||{}).value?.toLowerCase()||'',y=document.getElementById('year')?.value||'',sub=document.getElementById('subject')?.value||'';let a=DATA.pyq.filter(q=>(!y||String(q.year)===y)&&(!sub||q.subject===sub)&&(!s||q.q.toLowerCase().includes(s)));document.getElementById('pyqList').innerHTML=a.map((q,i)=>`<div class="q"><div class="tag">${q.year||''} • ${q.subject||''}</div><h3>${q.q}</h3><div class="muted">उत्तर: ${String.fromCharCode(65+(q.answer||0))}) ${q.options?.[q.answer||0]||''}</div></div>`).join('')||'<div class="empty">प्रश्न सापडला नाही.</div>'}
+function renderGK(){document.getElementById('gkList').innerHTML=(DATA.gk||[]).map(x=>`<div class="q"><b>${x.q}</b><p class="muted">उत्तर: ${x.a}</p></div>`).join('')}
+const demoDaily=[
+{q:"भारतीय राज्यघटनेचे कलम 315 कशाशी संबंधित आहे?",options:["निवडणूक आयोग","लोकसेवा आयोग","वित्त आयोग","CAG"],answer:1,explanation:"कलम 315 संघ व राज्य लोकसेवा आयोगांशी संबंधित आहे."},
+{q:"कलम 32 कोणत्या अधिकाराशी संबंधित आहे?",options:["समानता","घटनात्मक उपाय","धर्मस्वातंत्र्य","शिक्षण"],answer:1,explanation:"कलम 32 घटनात्मक उपायांचा अधिकार देते."}
+];
+while(demoDaily.length<50) demoDaily.push({q:"Demo question — दैनिक updater कडून वास्तविक प्रश्न येथे येतील.",options:["A","B","C","D"],answer:0,explanation:"GitHub Action/डेटा updater जोडल्यावर हा placeholder बदलला जाईल."});
+const demoNews=[{category:"MPSC",title:"Daily updater configured",summary:"तुमच्या hosted version मध्ये ही जागा रोजच्या verified current affairs ने भरली जाईल."}];
+const demoPYQ=[{year:2025,subject:"Polity",q:"भारतीय राज्यघटनेचे कलम 315 कशाशी संबंधित आहे?",options:["निवडणूक आयोग","लोकसेवा आयोग","वित्त आयोग","CAG"],answer:1}];
+const demoGK=[{q:"भारताचे संविधान कधी लागू झाले?",a:"26 जानेवारी 1950"}];
+load();
+</script>
+</body></html>
