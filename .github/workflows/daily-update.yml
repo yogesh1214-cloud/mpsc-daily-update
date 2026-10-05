@@ -1,19 +1,18 @@
  name: MPSC Daily Update
 
-"on":
-  workflow_dispatch:
-  push:
-    branches:
-      - main
+on:
   schedule:
-    - cron: "30 3 * * *"
-
-permissions:
-  contents: write
+    - cron: '0 0 * * *' # Runs every day at midnight
 
 jobs:
   update:
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run update script
+        run: echo "Running daily update..."
 
     steps:
       - name: Checkout repository
