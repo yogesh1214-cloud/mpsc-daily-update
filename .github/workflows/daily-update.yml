@@ -1,4 +1,4 @@
- name: MPSC Daily Update
+ame: MPSC Daily Update
 
 on:
   workflow_dispatch:
