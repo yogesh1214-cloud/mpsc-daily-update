@@ -1,6 +1,6 @@
-ame: MPSC Daily Update
+ name: MPSC Daily Update
 
-on:
+"on":
   workflow_dispatch:
   push:
     branches:
